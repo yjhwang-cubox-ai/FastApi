@@ -13,7 +13,7 @@ class City(BaseModel):
 
 @app.get("/")
 def hello():
-    return {"mm": "안녕하세요 파이보"}
+    return {"hello": "world"}
 
 @app.get('/cities')
 def get_cities():
