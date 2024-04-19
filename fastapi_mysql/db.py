@@ -1,23 +1,24 @@
+# -*- coding: utf-8 -*-
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-user_name = "eduuser"
-user_pwd = "1234"
-db_host = "127.0.0.1"
-db_name = "edudb"
+user_name = "root"
+user_pwd = "123"
+db_host = "172.16.153.231"
+db_name = "test"
 
-DATABASE = 'mysql:%s:%s@%s/%s?charset=utf8://' %(
+DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8' % (
     user_name,
     user_pwd,
     db_host,
-    db_name
+    db_name,
 )
 
 ENGINE = create_engine(
     DATABASE,
-    encoding = "utf-8",
-    echo=True    
+    # encoding="utf-8",
+    echo=True
 )
 
 session = scoped_session(
