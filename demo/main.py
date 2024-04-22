@@ -1,47 +1,61 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, Request
 import requests
-from typing import Optional
-from datetime import datetime
+from db import session
+from model import ToDoTable, ToDo
+from typing import List
 
 app = FastAPI()
 
 db = []
-
-class ToDo(BaseModel):
-    title: str
-    contents: str
-    date: datetime
 
 @app.get("/")
 def init():
     return "ToDo"
 
 @app.get("/todo")
-def get_todo_list():
-    results = []
-    for todo in db:        
-        results.append({'title':todo['title'], 'contents':todo['contents'], 'current_time': todo['date']})
-    return results
-
-@app.put("/todo/{todo_id}")
-def get_todo(todo_id: int, todo: ToDo):
-    db[todo_id-1] = dict(todo)
-    return db[todo_id-1]
+def get_todo_list(request: Request):
     
+    todo_list = session.query(ToDoTable).all()
+    
+    return todo_list
 
 @app.post("/todo")
-def create_todo(todo: ToDo):
+def create_todo(title: str, contents: str):
+    table = ToDoTable()
+    table.title = title
+    table.contents = contents
+    
     strs = f"http://worldtimeapi.org/api/timezone/Asia/Seoul"
     r = requests.get(strs)
     curtime = r.json()['datetime']
-    todo.date = curtime
+    table.date = str(curtime)
     
-    db.append(dict(todo))
-    return db[-1]
+    # table = ToDOTable()
+    # table.title = todo.title
+    # table.contents = todo.contents
+    # table.date = todo.date
+    
+    session.add(table)
+    session.commit()       
+    
+    return "created..."
+
+@app.put("/todo/{todo_id}")
+def update_todo(todo_list: List[ToDo]):
+    print("tod_list:", todo_list)
+    
+    for i in todo_list:
+        todo = session.query(ToDoTable).filter(ToDoTable.id == i.id).first()
+        todo.title = i.title
+        todo.contents = i.contents
+        session.commit()
+    
+    return "updated ... "
 
 @app.delete("/todo/{todo_id}")
 def delete_todo(todo_id: int):
-    db.pop(todo_id - 1)
     
-    return {}
+    table = session.query(ToDoTable).filter(ToDoTable.id == todo_id).delete()
+    session.commit()
+    
+    return "deleted ... "
