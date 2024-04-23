@@ -30,11 +30,6 @@ def create_todo(title: str, contents: str):
     curtime = r.json()['datetime']
     table.date = str(curtime)
     
-    # table = ToDOTable()
-    # table.title = todo.title
-    # table.contents = todo.contents
-    # table.date = todo.date
-    
     session.add(table)
     session.commit()       
     
